@@ -1,4 +1,23 @@
 #chartdiv {
-    width: 100%;
-    height: 500px;
-  }
+  width: 900px;
+  height: 500px;
+}
+
+#SemaforoRojo {
+  width: 100px;
+  height: 100px;
+  background-color: red;
+  margin: 10px;
+}
+
+#SemaforoVerde {
+  width: 100px;
+  height: 100px;
+  background-color: green;
+  margin: 10px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
