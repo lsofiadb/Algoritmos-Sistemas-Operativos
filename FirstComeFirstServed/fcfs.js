@@ -53,22 +53,27 @@ class Proceso{
     nombre=document.getElementById("nameProceso").value;
     tiempoLlegada = parseInt(document.getElementById("tiempoLlegada").value);
     rafaga=parseInt(document.getElementById("rafaga").value);
+    console.log(listaProcesos.length - 1)
+    console.log(listaProcesos[(listaProcesos.length - 1)].tiempoLlegada)
+    if(tiempoLlegada < listaProcesos[(listaProcesos.length - 1)].tiempoLlegada){
+      alert("El proceso NO puede tener un tiempo de llegada menor al del ultimo proceso")
+    }else{
+      let procesoNuevo = new Proceso(nombre,tiempoLlegada,rafaga);
     
-    let procesoNuevo = new Proceso(nombre,tiempoLlegada,rafaga);
-    
-    procesoNuevo.calcularTiempoComienzo();
-    procesoNuevo.calcularTiempoFinal();
-    procesoNuevo.calcularTiempoRetorno();
-    procesoNuevo.calcularTiempoEspera();
-
-    listaProcesos.push(procesoNuevo);
-
-    document.getElementById("table").insertRow(-1).innerHTML = `<td> ${procesoNuevo.nombre} 
-    </td><td>${procesoNuevo.tiempoLlegada}</td><td>${procesoNuevo.rafaga}</td>
-    <td>${procesoNuevo.tiempoComienzo}</td> <td>${procesoNuevo.tiempoFinal} </td> 
-    <td>${procesoNuevo.tiempoRetorno} </td> <td>${procesoNuevo.tiempoEspera} </td>`;
-
-    actualizarGraficaProcesos();
+      procesoNuevo.calcularTiempoComienzo();
+      procesoNuevo.calcularTiempoFinal();
+      procesoNuevo.calcularTiempoRetorno();
+      procesoNuevo.calcularTiempoEspera();
+  
+      listaProcesos.push(procesoNuevo);
+  
+      document.getElementById("table").insertRow(-1).innerHTML = `<td> ${procesoNuevo.nombre} 
+      </td><td>${procesoNuevo.tiempoLlegada}</td><td>${procesoNuevo.rafaga}</td>
+      <td>${procesoNuevo.tiempoComienzo}</td> <td>${procesoNuevo.tiempoFinal} </td> 
+      <td>${procesoNuevo.tiempoRetorno} </td> <td>${procesoNuevo.tiempoEspera} </td>`;
+  
+      actualizarGraficaProcesos();
+    }
   }
 
   function actualizarGraficaProcesos() {
