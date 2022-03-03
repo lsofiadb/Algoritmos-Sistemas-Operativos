@@ -1,0 +1,89 @@
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+    <script src="https://www.amcharts.com/lib/3/serial.js"></script>
+    <script src="https://www.amcharts.com/lib/3/gantt.js"></script>
+    <script src="https://www.amcharts.com/lib/3/plugins/export/export.min.js"></script>
+    <link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+    <script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
+    <script src="https://cdn.amcharts.com/lib/4/core.js"></script>
+    <script src="https://cdn.amcharts.com/lib/4/charts.js"></script>
+    <script src="https://cdn.amcharts.com/lib/4/themes/animated.js"></script>  
+    
+</head>
+  <body>
+    <div class="table-responsive" id="tabla-procesos">
+        <table class="table" id="table">
+          <thead>
+            <tr>
+              <th>Proceso</th>
+              <th>Tiempo de llegada</th>
+              <th>Rafaga</th>
+              <th>Tiempo de comienzo</th>
+              <th>Tiempo final</th>
+              <th>Tiempo de retorno</th>
+              <th>Tiempo de espera</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    
+      <div class="grid">
+        <div id="chartdiv"></div>
+        <div>
+        <h1>Semáforo Binario</h1>
+        <div id="SemaforoRojo" class="SemaforoRojo" style="display: block;"></div>
+        <div id="SemaforoVerde" class="SemaforoVerde" style="display: block;"></div>
+        </div>
+      </div>
+
+      <div class="container">
+        <div class="row">
+        <form id="formularioAgregarProceso">
+          <h2>Agregar procesos</h2>
+        </div>
+        <div class="row">
+          <div class="col-6 col-md-4">
+          <div class="campoForm">
+              <label class="campo__label">Nombre del proceso:</label>
+              <input type="text" class="campo__field" id="nameProceso" placeholder="Nombre proceso">
+          </div>
+        </div>
+        <div class="col-6 col-md-4">
+          <div class="campoForm">
+              <label class="campo__label">Tiempo de llegada:</label>
+              <input type="text" class="campo__field" id="tiempoLlegada" placeholder="Tiempo llegada">
+          </div>
+          </div>
+          <div class="col-6 col-md-4">
+          <div class="campoForm">
+              <label class="campo__label">Rafaga:</label>
+              <input type="text" class="campo__field" id="rafaga" placeholder="Rafaga">
+          </div>
+          </div>
+          <br>
+          <div class="campoForm">
+              <input type="button" class="btn btn-primary" value="Agregar proceso" class="boton" onclick="crearGrupoProcesosOrdenados()">
+              <input type="button" class="btn btn-success" value="Ejecutar" class="boton" onclick="ejecutarProcesos()">
+              
+            </div>
+            <br>
+        <div class="campoForm">
+            <input type="button" class="btn btn-danger" value="Bloquear proceso" class="boton" onclick="bloquearProceso()">
+            <input type="button" class="btn btn-warning" value="Reanudar ejecucion" class="boton" onclick="actualizarGraficaProcesos()">
+        </div>
+        <br>
+      </form>
+      </div>
+      </div>
+  </body>
+</html>
+<script src="sjf.js"></script>
