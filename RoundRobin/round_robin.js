@@ -17,7 +17,9 @@ class Proceso {
     tiempoComienzo,
     tiempoFinal,
     tiempoRetorno,
-    tiempoEspera
+    tiempoEspera,
+    rafagaEjecutada,
+    estado
   ) {
     this.nombre = nombre;
     this.tiempoLlegada = tiempoLlegada;
@@ -26,6 +28,8 @@ class Proceso {
     this.tiempoFinal = tiempoFinal;
     this.tiempoRetorno = tiempoRetorno;
     this.tiempoEspera = tiempoEspera;
+    this.rafagaEjecutada = 0;
+    this.estado = estado;
   }
 
   calcularTiempoFinal() {
@@ -44,6 +48,13 @@ class Proceso {
   }
   actualizarTiempoComienzo(i) {
     this.tiempoComienzo = listaProcesos[i - 1].tiempoFinal;
+  }
+  calcularTiempoEsperaRoundRobin() {
+    this.tiempoEspera =
+      this.tiempoRetorno - (this.rafagaEjecutada + this.rafaga);
+  }
+  sumarRafagaEjecutada(cantidadParticiones) {
+    this.rafagaEjecutada = 4 * cantidadParticiones;
   }
 }
 
@@ -86,49 +97,72 @@ const crearGrupoProcesosOrdenados = () => {
     console.log(listaGrupoProcesos);
     alert("Proceso añadido");
   }
-
 };
 
 const ejecutarProcesos = () => {
-  
   console.log("concat");
   listaProcesos = listaProcesos.concat(listaGrupoProcesos);
   console.log("lista con concat");
   console.log(listaProcesos);
-  for (let i = listaProcesos.length - listaGrupoProcesos.length;i < listaProcesos.length;i++) {
+  for (
+    let i = listaProcesos.length - listaGrupoProcesos.length;
+    i < listaProcesos.length;
+    i++
+  ) {
     if (i === 0) {
       listaProcesos[i].tiempoComienzo = "0";
     } else {
       listaProcesos[i].actualizarTiempoComienzo(i);
     }
-    
-    if(listaProcesos[i].rafaga > cuantum){
-        console.log("entraaaaaaaaaaaa")
-        let nuevaRafaga = listaProcesos[i].rafaga - cuantum;
-        let procesoNuevo = new Proceso(listaProcesos[i].nombre, listaProcesos[i].tiempoLlegada, nuevaRafaga);
-        procesoNuevo.calcularTiempoComienzo();
-        procesoNuevo.calcularTiempoFinal();
-        procesoNuevo.calcularTiempoRetorno();
-        //REVISAR
-        procesoNuevo.tiempoEspera = procesoNuevo.tiempoRetorno - listaProcesos[i].rafaga;
-        listaProcesos.push(procesoNuevo);
-        listaProcesos[i].rafaga = cuantum;
+    listaGrupoProcesos = [];
+    if (listaProcesos[i].rafaga > cuantum) {
+      let nuevaRafaga = listaProcesos[i].rafaga - cuantum;
+      console.log(nuevaRafaga);
+      let procesoNuevo = new Proceso(
+        listaProcesos[i].nombre,
+        listaProcesos[i].tiempoLlegada,
+        nuevaRafaga,
+        0,
+        0,
+        0,
+        0,
+        0,
+        true
+      );
+      let listaProcesosParticion = listaProcesos.filter(
+        (proceso) => proceso.nombre === procesoNuevo.nombre
+      );
+      procesoNuevo.sumarRafagaEjecutada(listaProcesosParticion.length);
+      
+      console.log(procesoNuevo.tiempoEspera);
+      console.log(procesoNuevo.rafagaEjecutada);
+      console.log(procesoNuevo.tiempoRetorno);
+      listaProcesos.push(procesoNuevo);
+      listaProcesos[i].rafaga = cuantum;
     }
-    listaProcesos[i].calcularTiempoFinal();
-    listaProcesos[i].calcularTiempoRetorno();
-    listaProcesos[i].calcularTiempoEspera();
-    
+    if (listaProcesos[i].estado) {
+      listaProcesos[i].calcularTiempoFinal();
+      listaProcesos[i].calcularTiempoRetorno();
+      listaProcesos[i].calcularTiempoEsperaRoundRobin();
+    } else {
+      listaProcesos[i].calcularTiempoFinal();
+      listaProcesos[i].calcularTiempoRetorno();
+      listaProcesos[i].calcularTiempoEspera();
+    }
   }
-   
+
   for (let i = ultimoProcesoActivo; i < listaProcesos.length; i++) {
     crearProceso(listaProcesos[i]);
   }
   actualizarGraficaProcesos();
-  listaGrupoProcesos = [];
 };
 
 function crearProceso(procesoNuevo) {
-  document.getElementById("table").insertRow(-1).innerHTML = `<td> ${procesoNuevo["nombre"]} </td><td>${procesoNuevo.tiempoLlegada}</td><td>${procesoNuevo.rafaga}</td>`;
+  document
+    .getElementById("table")
+    .insertRow(
+      -1
+    ).innerHTML = `<td> ${procesoNuevo["nombre"]} </td><td>${procesoNuevo.tiempoLlegada}</td><td>${procesoNuevo.rafaga}</td>`;
 }
 
 function actualizarGraficaProcesos() {
@@ -143,45 +177,75 @@ function actualizarGraficaProcesos() {
         listaProcesos[ultimoProcesoActivo].rafaga /= 2;
         listaProcesos[ultimoProcesoActivo].calcularTiempoFinal();
         listaProcesos[ultimoProcesoActivo].calcularTiempoRetorno();
-        listaProcesos[ultimoProcesoActivo].calcularTiempoEspera();
-        
+        if (listaProcesos[ultimoProcesoActivo].estado) {
+          listaProcesos[ultimoProcesoActivo].calcularTiempoEsperaRoundRobin();
+        } else {
+          listaProcesos[ultimoProcesoActivo].calcularTiempoEspera();
+        }
+
         //Si ultimo proceso activo no es el ultimo proceso de la lista
-        if(parseInt(ultimoProcesoActivo) + 1 != listaProcesos.length){
-            console.log("hoka"+ultimoProcesoActivo+1)
-            listaProcesos[ultimoProcesoActivo + 1].actualizarTiempoComienzo(ultimoProcesoActivo + 1);
-            listaProcesos[ultimoProcesoActivo + 1].calcularTiempoFinal();
-            listaProcesos[ultimoProcesoActivo + 1].calcularTiempoRetorno();
+        if (parseInt(ultimoProcesoActivo) + 1 != listaProcesos.length) {
+          console.log("hoka" + ultimoProcesoActivo + 1);
+          listaProcesos[ultimoProcesoActivo + 1].actualizarTiempoComienzo(
+            ultimoProcesoActivo + 1
+          );
+          listaProcesos[ultimoProcesoActivo + 1].calcularTiempoFinal();
+          listaProcesos[ultimoProcesoActivo + 1].calcularTiempoRetorno();
+          if (listaProcesos[ultimoProcesoActivo + 1].estado) {
+            listaProcesos[
+              ultimoProcesoActivo + 1
+            ].calcularTiempoEsperaRoundRobin();
+          } else {
             listaProcesos[ultimoProcesoActivo + 1].calcularTiempoEspera();
+          }
         }
 
         nombre = listaProcesos[ultimoProcesoActivo].nombre;
         rafaga = listaProcesos[ultimoProcesoActivo].rafaga;
         tiempoLlegada = listaProcesos[ultimoProcesoActivo].tiempoLlegada;
 
-        segundaParteProceso = new Proceso(nombre, tiempoLlegada, rafaga)
-        if(parseInt(ultimoProcesoActivo) + 1 != listaProcesos.length){
-            segundaParteProceso.actualizarTiempoComienzo(ultimoProcesoActivo+2);
-        }else{
-            segundaParteProceso.actualizarTiempoComienzo(ultimoProcesoActivo+1);
+        segundaParteProceso = new Proceso(nombre, tiempoLlegada, rafaga);
+
+        for (let i = ultimoProcesoActivo + 2; i < listaProcesos.length; i++) {
+          listaProcesos[i].actualizarTiempoComienzo(i);
+          listaProcesos[i].calcularTiempoFinal();
+          listaProcesos[i].calcularTiempoRetorno();
+          if (listaProcesos[i].estado) {
+            listaProcesos[i].calcularTiempoEsperaRoundRobin();
+          } else {
+            listaProcesos[i].calcularTiempoEspera();
+          }
         }
+
+        if (parseInt(ultimoProcesoActivo) + 1 != listaProcesos.length) {
+          segundaParteProceso.calcularTiempoComienzo();
+        } else {
+          segundaParteProceso.calcularTiempoComienzo();
+        }
+        segundaParteProceso.estado = listaProcesos[ultimoProcesoActivo].estado;
+        segundaParteProceso.rafagaEjecutada =
+          listaProcesos[ultimoProcesoActivo].rafagaEjecutada;
         segundaParteProceso.calcularTiempoFinal();
         segundaParteProceso.calcularTiempoRetorno();
-        segundaParteProceso.calcularTiempoEspera();
-        segundaParteProceso.tiempoEspera += 2;
-        listaProcesos.push(segundaParteProceso);
-        document.getElementById("table").insertRow(-1).innerHTML = `<td> ${segundaParteProceso["nombre"]} </td><td>${segundaParteProceso.tiempoLlegada}</td><td>${segundaParteProceso.rafaga}</td>`;
-        let auxiliarLista = listaProcesos.slice(ultimoProcesoActivo+2,listaProcesos.length)
-        auxiliarLista.sort(function (a, b) {
-          return a.rafaga - b.rafaga;
-        })
-        for(let i = 0; i<auxiliarLista.length; i++){
-          //posicion en que queda el elemento
-          //cantidad de elementos a añadir
-          //elementos
-          listaProcesos.splice(ultimoProcesoActivo+2+i,1,auxiliarLista[i]);
+        if (segundaParteProceso.estado) {
+          segundaParteProceso.calcularTiempoEsperaRoundRobin();
+        } else {
+          segundaParteProceso.calcularTiempoEspera();
         }
-        console.log("lleno")
-        console.log(listaProcesos)
+        segundaParteProceso.tiempoEspera += 2;
+
+        listaProcesos.push(segundaParteProceso);
+        document
+          .getElementById("table")
+          .insertRow(
+            -1
+          ).innerHTML = `<td> ${segundaParteProceso["nombre"]} </td><td>${segundaParteProceso.tiempoLlegada}</td><td>${segundaParteProceso.rafaga}</td>`;
+        let auxiliarLista = listaProcesos.slice(
+          ultimoProcesoActivo + 2,
+          listaProcesos.length
+        );
+        console.log("lleno");
+        console.log(listaProcesos);
         document.getElementById("table").rows[
           ultimoProcesoActivo + 1
         ].innerHTML = `<td> ${listaProcesos[ultimoProcesoActivo].nombre} 
@@ -190,7 +254,6 @@ function actualizarGraficaProcesos() {
         ultimoProcesoActivo++;
         let procesosGraficados = listaProcesos.slice(0, ultimoProcesoActivo);
         chart.data = procesosGraficados;
-
       } else {
         document.getElementById("table").rows[
           ultimoProcesoActivo + 1
